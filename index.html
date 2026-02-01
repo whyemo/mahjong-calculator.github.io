@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>麻将记账工具</title>
+    <style>
+        /* 全局样式，适配iPhone触屏 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "微软雅黑", sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background-color: #f5f5f5;
+            padding: 15px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        /* 标题和计时样式 */
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+        .timer-section {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .timer-info {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .timer-display {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .timer-btn {
+            width: auto;
+            padding: 0 20px;
+            height: 40px;
+            line-height: 40px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            color: white;
+            background-color: #07c160;
+            cursor: pointer;
+        }
+        .timer-btn.stop {
+            background-color: #f53f3f;
+        }
+        /* 模块样式 */
+        .module {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .module-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .module-title small {
+            font-size: 12px;
+            font-weight: normal;
+            color: #999;
+            cursor: pointer;
+        }
+        /* 玩家项样式 - 输入框宽度50% */
+        .player-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .player-input {
+            width: 50%;
+            height: 40px;
+            line-height: 40px;
+            border: 1px solid #eee;
+            padding: 0 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        .player-total {
+            font-size: 14px;
+            color: #666;
+            min-width: 80px;
+        }
+        /* 通用按钮样式 */
+        button {
+            width: 100%;
+            height: 45px;
+            line-height: 45px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            color: white;
+            margin: 8px 0;
+            cursor: pointer;
+        }
+        .btn-normal {
+            background-color: #07c160;
+        }
+        .btn-warn {
+            background-color: #f53f3f;
+        }
+        .btn-secondary {
+            background-color: #666;
+        }
+        .btn-small {
+            width: auto;
+            height: 32px;
+            line-height: 32px;
+            padding: 0 8px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+        .btn-active {
+            background-color: #059850 !important;
+        }
+        .btn-double {
+            background-color: #ff9500;
+            margin-left: 5px;
+        }
+        .btn-double.active {
+            background-color: #e68900 !important;
+        }
+        /* 自定义金额模块 - 核心优化样式 */
+        .custom-amount-item {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+            gap: 8px;
+        }
+        .custom-name {
+            width: 40%;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .amount-btn-group {
+            display: flex;
+            gap: 5px;
+        }
+        .win-btn, .lose-btn {
+            width: 40px;
+            height: 32px;
+            line-height: 32px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            color: white;
+        }
+        .win-btn {
+            background-color: #07c160;
+        }
+        .lose-btn {
+            background-color: #f53f3f;
+        }
+        .custom-amount-input {
+            flex: 1;
+            height: 32px;
+            line-height: 32px;
+            border: 1px solid #eee;
+            padding: 0 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            text-align: center;
+        }
+        /* 自摸弹窗样式 - 新增双倍按钮 */
+        .zim-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            padding: 20px;
+        }
+        .zim-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .zim-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .zim-tip {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 15px;
+            padding: 8px;
+            background-color: #f8f8f8;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .zim-player-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .zim-player-item.active {
+            background-color: #07c160;
+            color: white;
+            border-color: #07c160;
+        }
+        .zim-amount-input {
+            width: 100%;
+            height: 40px;
+            line-height: 40px;
+            border: 1px solid #eee;
+            padding: 0 10px;
+            border-radius: 6px;
+            margin: 15px 0;
+            text-align: center;
+            font-size: 16px;
+        }
+        .zim-player-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        /* 历史记录表格样式 - 核心优化 */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        .history-table th, .history-table td {
+            border: 1px solid #eee;
+            padding: 8px 5px;
+            text-align: center;
+        }
+        .history-table th {
+            background-color: #f8f8f8;
+            font-weight: 500;
+            color: #333;
+        }
+        .history-table .win-num {
+            color: #07c160;
+            font-weight: 500;
+        }
+        .history-table .lose-num {
+            color: #f53f3f;
+            font-weight: 500;
+        }
+        .history-table .zero-num {
+            color: #999;
+        }
+        .history-empty {
+            text-align: center;
+            color: #999;
+            padding: 30px 0;
+            font-size: 14px;
+        }
+        /* 结算清单样式 */
+        .settle-item {
+            font-size: 15px;
+            line-height: 40px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+        }
+        .empty-tip {
+            text-align: center;
+            color: #999;
+            padding: 20px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>麻将记账工具</h1>
+        
+        <!-- 计时模块 -->
+        <div class="timer-section">
+            <div class="timer-info" id="startTime">开始时间：未开始</div>
+            <div class="timer-display" id="timer">计时：00:00:00</div>
+            <button class="timer-btn" id="timerBtn" onclick="toggleTimer()">开始计时</button>
+        </div>
+
+        <!-- 玩家设置模块（输入框50%宽度） -->
+        <div class="module">
+            <div class="module-title">🔹 玩家设置</div>
+            <div class="player-item">
+                <input type="text" class="player-input" id="player1" value="A" placeholder="玩家1名称">
+                <span class="player-total" id="total1">0 元</span>
+            </div>
+            <div class="player-item">
+                <input type="text" class="player-input" id="player2" value="B" placeholder="玩家2名称">
+                <span class="player-total" id="total2">0 元</span>
+            </div>
+            <div class="player-item">
+                <input type="text" class="player-input" id="player3" value="C" placeholder="玩家3名称">
+                <span class="player-total" id="total3">0 元</span>
+            </div>
+            <div class="player-item">
+                <input type="text" class="player-input" id="player4" value="D" placeholder="玩家4名称">
+                <span class="player-total" id="total4">0 元</span>
+            </div>
+        </div>
+
+        <!-- 快捷记录模块 -->
+        <div class="module">
+            <div class="module-title">🔹 快捷记录</div>
+            <button class="btn-normal" onclick="showZimModal()">自摸</button>
+            <button class="btn-secondary" onclick="showCustomInput()">自定义本局金额</button>
+            <button class="btn-warn" onclick="clearAll()">清空所有记录</button>
+        </div>
+
+        <!-- 自定义金额模块 - 核心优化 -->
+        <div class="module" id="customModule" style="display: none;">
+            <div class="module-title">🔹 自定义本局金额</div>
+            <!-- 玩家1 -->
+            <div class="custom-amount-item">
+                <span class="custom-name" id="customName1">A</span>
+                <div class="amount-btn-group">
+                    <button class="win-btn" onclick="setAmountType(1, 'win')">赢</button>
+                    <button class="lose-btn" onclick="setAmountType(1, 'lose')">输</button>
+                </div>
+                <input type="number" class="custom-amount-input" id="custom1" placeholder="金额" value="" data-type="none">
+            </div>
+            <!-- 玩家2 -->
+            <div class="custom-amount-item">
+                <span class="custom-name" id="customName2">B</span>
+                <div class="amount-btn-group">
+                    <button class="win-btn" onclick="setAmountType(2, 'win')">赢</button>
+                    <button class="lose-btn" onclick="setAmountType(2, 'lose')">输</button>
+                </div>
+                <input type="number" class="custom-amount-input" id="custom2" placeholder="金额" value="" data-type="none">
+            </div>
+            <!-- 玩家3 -->
+            <div class="custom-amount-item">
+                <span class="custom-name" id="customName3">C</span>
+                <div class="amount-btn-group">
+                    <button class="win-btn" onclick="setAmountType(3, 'win')">赢</button>
+                    <button class="lose-btn" onclick="setAmountType(3, 'lose')">输</button>
+                </div>
+                <input type="number" class="custom-amount-input" id="custom3" placeholder="金额" value="" data-type="none">
+            </div>
+            <!-- 玩家4 -->
+            <div class="custom-amount-item">
+                <span class="custom-name" id="customName4">D</span>
+                <div class="amount-btn-group">
+                    <button class="win-btn" onclick="setAmountType(4, 'win')">赢</button>
+                    <button class="lose-btn" onclick="setAmountType(4, 'lose')">输</button>
+                </div>
+                <input type="number" class="custom-amount-input" id="custom4" placeholder="金额" value="" data-type="none">
+            </div>
+            <button class="btn-normal" onclick="addCustomRound()">确认记录</button>
+            <button class="btn-secondary" onclick="clearCustomAmount()">清空本局金额</button>
+            <button class="btn-secondary" onclick="hideCustomInput()">取消</button>
+        </div>
+
+        <!-- 自摸弹窗 - 核心优化：双倍按钮+金额提示 -->
+        <div class="zim-modal" id="zimModal" style="display: none;">
+            <div class="zim-content">
+                <div class="zim-title">选择自摸玩家</div>
+                <div class="zim-tip">请选择自摸玩家，其他玩家可设置双倍支付（如吃三口）</div>
+                <!-- 自摸玩家选择 -->
+                <div class="zim-player-item" id="zimPlayer1" onclick="selectZimPlayer(1)">
+                    <span class="zim-player-name">A</span>
+                    <span>✓ 自摸</span>
+                </div>
+                <div class="zim-player-item" id="zimPlayer2" onclick="selectZimPlayer(2)">
+                    <span class="zim-player-name">B</span>
+                    <span>✓ 自摸</span>
+                </div>
+                <div class="zim-player-item" id="zimPlayer3" onclick="selectZimPlayer(3)">
+                    <span class="zim-player-name">C</span>
+                    <span>✓ 自摸</span>
+                </div>
+                <div class="zim-player-item" id="zimPlayer4" onclick="selectZimPlayer(4)">
+                    <span class="zim-player-name">D</span>
+                    <span>✓ 自摸</span>
+                </div>
+                <!-- 金额输入提示修改 -->
+                <input type="number" class="zim-amount-input" id="zimAmount" placeholder="请输入每位玩家输的基础金额" value="10">
+                <!-- 非自摸玩家双倍设置 -->
+                <div id="zimDoubleContainer" style="display: none;">
+                    <div class="zim-tip" style="margin-top: 0;">非自摸玩家双倍支付设置</div>
+                    <div class="zim-player-item" id="zimDouble1" onclick="toggleZimDouble(1)">
+                        <span class="zim-player-name">A</span>
+                        <button class="btn-small btn-double" id="doubleBtn1">是否双倍</button>
+                    </div>
+                    <div class="zim-player-item" id="zimDouble2" onclick="toggleZimDouble(2)">
+                        <span class="zim-player-name">B</span>
+                        <button class="btn-small btn-double" id="doubleBtn2">是否双倍</button>
+                    </div>
+                    <div class="zim-player-item" id="zimDouble3" onclick="toggleZimDouble(3)">
+                        <span class="zim-player-name">C</span>
+                        <button class="btn-small btn-double" id="doubleBtn3">是否双倍</button>
+                    </div>
+                    <div class="zim-player-item" id="zimDouble4" onclick="toggleZimDouble(4)">
+                        <span class="zim-player-name">D</span>
+                        <button class="btn-small btn-double" id="doubleBtn4">是否双倍</button>
+                    </div>
+                </div>
+                <button class="btn-normal" onclick="confirmZim()">确认记录</button>
+                <button class="btn-secondary" onclick="hideZimModal()">取消</button>
+            </div>
+        </div>
+
+        <!-- 历史记录模块 - 核心优化：表格形式 -->
+        <div class="module">
+            <div class="module-title">
+                🔹 每局历史记录
+                <small onclick="clearHistory()">清空历史</small>
+            </div>
+            <div id="historyList">
+                <div class="history-empty">暂无对局记录～</div>
+            </div>
+        </div>
+
+        <!-- 结算清单模块 -->
+        <div class="module">
+            <div class="module-title">🔹 最终结算清单</div>
+            <div id="settleList">
+                <div class="empty-tip">暂无记录，先添加对局结果吧～</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化全局数据
+        let players = JSON.parse(localStorage.getItem('mahjongPlayers')) || [
+            { id: 1, name: 'A', total: 0 },
+            { id: 2, name: 'B', total: 0 },
+            { id: 3, name: 'C', total: 0 },
+            { id: 4, name: 'D', total: 0 }
+        ];
+        let historyRecords = JSON.parse(localStorage.getItem('mahjongHistory')) || [];
+        // 计时相关
+        let timerInterval = null;
+        let startTime = null;
+        let isTiming = false;
+        let elapsedSeconds = 0;
+        // 自摸相关 - 新增双倍支付标记
+        let selectedZimPlayerId = null;
+        let zimDoubleMap = { 1: false, 2: false, 3: false, 4: false };
+        // 自定义金额相关 - 新增类型标记（win/lose/none）
+
+        // 页面加载初始化
+        window.onload = function() {
+            updatePlayerDisplay();
+            calcSettleList();
+            updateHistoryDisplay();
+            // 监听玩家名称修改
+            document.getElementById('player1').addEventListener('input', updatePlayerName);
+            document.getElementById('player2').addEventListener('input', updatePlayerName);
+            document.getElementById('player3').addEventListener('input', updatePlayerName);
+            document.getElementById('player4').addEventListener('input', updatePlayerName);
+            // 恢复计时状态
+            const timerData = JSON.parse(localStorage.getItem('mahjongTimer'));
+            if (timerData && timerData.isTiming) {
+                startTime = new Date(timerData.startTime);
+                isTiming = true;
+                elapsedSeconds = timerData.elapsedSeconds;
+                document.getElementById('startTime').textContent = `开始时间：${formatTime(startTime)}`;
+                document.getElementById('timerBtn').textContent = '结束计时';
+                document.getElementById('timerBtn').classList.add('stop');
+                startTimerInterval();
+                updateTimerDisplay();
+            }
+        };
+
+        // 工具函数：格式化时间（年月日 时分秒）
+        function formatTime(date) {
+            if (!date) return '未开始';
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const hour = date.getHours().toString().padStart(2, '0');
+            const minute = date.getMinutes().toString().padStart(2, '0');
+            const second = date.getSeconds().toString().padStart(2, '0');
+            return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+        }
+
+        // 工具函数：格式化计时（HH:MM:SS）
+        function formatElapsedTime(seconds) {
+            const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+            const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            return `${h}:${m}:${s}`;
+        }
+
+        // 计时功能：开始/停止
+        function toggleTimer() {
+            if (!isTiming) {
+                startTime = new Date();
+                isTiming = true;
+                elapsedSeconds = 0;
+                document.getElementById('startTime').textContent = `开始时间：${formatTime(startTime)}`;
+                document.getElementById('timerBtn').textContent = '结束计时';
+                document.getElementById('timerBtn').classList.add('stop');
+                startTimerInterval();
+            } else {
+                clearInterval(timerInterval);
+                isTiming = false;
+                document.getElementById('timerBtn').textContent = '开始计时';
+                document.getElementById('timerBtn').classList.remove('stop');
+                alert(`麻将对局结束！总时长：${formatElapsedTime(elapsedSeconds)}`);
+            }
+            // 保存计时状态
+            localStorage.setItem('mahjongTimer', JSON.stringify({
+                isTiming,
+                startTime: startTime ? startTime.toISOString() : null,
+                elapsedSeconds
+            }));
+        }
+        function startTimerInterval() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                elapsedSeconds++;
+                updateTimerDisplay();
+                localStorage.setItem('mahjongTimer', JSON.stringify({
+                    isTiming,
+                    startTime: startTime ? startTime.toISOString() : null,
+                    elapsedSeconds
+                }));
+            }, 1000);
+        }
+        function updateTimerDisplay() {
+            document.getElementById('timer').textContent = `计时：${formatElapsedTime(elapsedSeconds)}`;
+        }
+
+        // 玩家名称更新：同步所有模块名称
+        function updatePlayerName() {
+            players[0].name = document.getElementById('player1').value || 'A';
+            players[1].name = document.getElementById('player2').value || 'B';
+            players[2].name = document.getElementById('player3').value || 'C';
+            players[3].name = document.getElementById('player4').value || 'D';
+            // 同步自定义模块
+            document.getElementById('customName1').textContent = players[0].name;
+            document.getElementById('customName2').textContent = players[1].name;
+            document.getElementById('customName3').textContent = players[2].name;
+            document.getElementById('customName4').textContent = players[3].name;
+            // 同步自摸弹窗
+            document.getElementById('zimPlayer1').querySelector('.zim-player-name').textContent = players[0].name;
+            document.getElementById('zimPlayer2').querySelector('.zim-player-name').textContent = players[1].name;
+            document.getElementById('zimPlayer3').querySelector('.zim-player-name').textContent = players[2].name;
+            document.getElementById('zimPlayer4').querySelector('.zim-player-name').textContent = players[3].name;
+            document.getElementById('zimDouble1').querySelector('.zim-player-name').textContent = players[0].name;
+            document.getElementById('zimDouble2').querySelector('.zim-player-name').textContent = players[1].name;
+            document.getElementById('zimDouble3').querySelector('.zim-player-name').textContent = players[2].name;
+            document.getElementById('zimDouble4').querySelector('.zim-player-name').textContent = players[3].name;
+            // 保存并更新显示
+            localStorage.setItem('mahjongPlayers', JSON.stringify(players));
+            calcSettleList();
+            updateHistoryDisplay();
+        }
+        function updatePlayerDisplay() {
+            document.getElementById('player1').value = players[0].name;
+            document.getElementById('player2').value = players[1].name;
+            document.getElementById('player3').value = players[2].name;
+            document.getElementById('player4').value = players[3].name;
+            document.getElementById('total1').textContent = players[0].total + ' 元';
+            document.getElementById('total2').textContent = players[1].total + ' 元';
+            document.getElementById('total3').textContent = players[2].total + ' 元';
+            document.getElementById('total4').textContent = players[3].total + ' 元';
+            // 同步名称
+            updatePlayerName();
+        }
+
+        // 核心优化1：自定义金额 - 赢/输按钮交互（点击即聚焦输入框，自动带正负，无默认0）
+        function setAmountType(playerId, type) {
+            const input = document.getElementById(`custom${playerId}`);
+            const winBtn = input.parentElement.querySelector('.win-btn');
+            const loseBtn = input.parentElement.querySelector('.lose-btn');
+            // 重置按钮样式
+            winBtn.classList.remove('btn-active');
+            loseBtn.classList.remove('btn-active');
+            // 设置类型并高亮按钮
+            input.dataset.type = type;
+            type === 'win' ? winBtn.classList.add('btn-active') : loseBtn.classList.add('btn-active');
+            // 聚焦输入框，清空原有内容（直接输入数字即可）
+            input.value = '';
+            input.focus();
+        }
+        // 自定义金额：清空
+        function clearCustomAmount() {
+            for (let i = 1; i <= 4; i++) {
+                const input = document.getElementById(`custom${i}`);
+                input.value = '';
+                input.dataset.type = 'none';
+                const winBtn = input.parentElement.querySelector('.win-btn');
+                const loseBtn = input.parentElement.querySelector('.lose-btn');
+                winBtn.classList.remove('btn-active');
+                loseBtn.classList.remove('btn-active');
+            }
+        }
+        // 自定义金额：记录本局
+        function addCustomRound() {
+            const roundData = [];
+            let total = 0;
+            for (let i = 1; i <= 4; i++) {
+                const input = document.getElementById(`custom${i}`);
+                const amountVal = Number(input.value) || 0;
+                const type = input.dataset.type;
+                // 根据类型计算最终金额
+                let finalAmount = 0;
+                if (type === 'win') finalAmount = Math.abs(amountVal);
+                else if (type === 'lose') finalAmount = -Math.abs(amountVal);
+                else finalAmount = 0;
+                roundData.push({ id: i, amount: finalAmount });
+                total += finalAmount;
+            }
+            // 校验收支平衡
+            if (total !== 0) {
+                alert('本局收支不平衡！\n赢的钱要等于输的钱');
+                return;
+            }
+            // 记录数据
+            addRoundRecord(roundData);
+            hideCustomInput();
+            clearCustomAmount();
+        }
+
+        // 核心优化2：自摸功能 - 选择自摸玩家+双倍支付开关
+        function showZimModal() {
+            document.getElementById('zimModal').style.display = 'flex';
+            // 重置自摸和双倍状态
+            selectedZimPlayerId = null;
+            zimDoubleMap = { 1: false, 2: false, 3: false, 4: false };
+            document.querySelectorAll('.zim-player-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.btn-double').forEach(btn => {
+                btn.classList.remove('btn-active');
+                btn.textContent = '是否双倍';
+            });
+            document.getElementById('zimDoubleContainer').style.display = 'none';
+            document.getElementById('zimAmount').value = 10;
+        }
+        function hideZimModal() {
+            document.getElementById('zimModal').style.display = 'none';
+        }
+        // 选择自摸玩家
+        function selectZimPlayer(id) {
+            selectedZimPlayerId = id;
+            // 重置自摸玩家样式
+            document.querySelectorAll('.zim-player-item').forEach(item => item.classList.remove('active'));
+            document.getElementById(`zimPlayer${id}`).classList.add('active');
+            // 显示双倍支付设置容器，隐藏自摸玩家的双倍按钮
+            document.getElementById('zimDoubleContainer').style.display = 'block';
+            for (let i = 1; i <= 4; i++) {
+                const doubleItem = document.getElementById(`zimDouble${i}`);
+                doubleItem.style.display = i === id ? 'none' : 'flex';
+            }
+        }
+        // 切换非自摸玩家双倍支付
+        function toggleZimDouble(id) {
+            zimDoubleMap[id] = !zimDoubleMap[id];
+            const btn = document.getElementById(`doubleBtn${id}`);
+            if (zimDoubleMap[id]) {
+                btn.classList.add('btn-active');
+                btn.textContent = '双倍✓';
+            } else {
+                btn.classList.remove('btn-active');
+                btn.textContent = '是否双倍';
+            }
+        }
+        // 自摸：确认记录
+        function confirmZim() {
+            if (!selectedZimPlayerId) {
+                alert('请先选择自摸的玩家！');
+                return;
+            }
+            const baseAmount = Number(document.getElementById('zimAmount').value) || 0;
+            if (baseAmount <= 0) {
+                alert('请输入有效的基础金额（大于0）！');
+                return;
+            }
+            // 构建自摸数据：自摸玩家赢，其他玩家按双倍/基础支付
+            const roundData = [];
+            let zimWinTotal = 0;
+            for (let i = 1; i <= 4; i++) {
+                if (i === selectedZimPlayerId) {
+                    roundData.push({ id: i, amount: 0 }); // 先占位，最后计算总赢额
+                } else {
+                    const payAmount = zimDoubleMap[i] ? baseAmount * 2 : baseAmount;
+                    roundData.push({ id: i, amount: -payAmount });
+                    zimWinTotal += payAmount;
+                }
+            }
+            // 设置自摸玩家的赢额
+            roundData[selectedZimPlayerId - 1].amount = zimWinTotal;
+            // 记录数据
+            addRoundRecord(roundData);
+            hideZimModal();
+        }
+
+        // 核心优化3：历史记录 - 表格形式展示（横向玩家，纵向局数）
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            if (historyRecords.length === 0) {
+                historyList.innerHTML = '<div class="history-empty">暂无对局记录～</div>';
+                return;
+            }
+            // 构建表格：表头=玩家名称，表体=每局结果
+            let tableHtml = `
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>局数/时间</th>
+                            <th>${players[0].name}</th>
+                            <th>${players[1].name}</th>
+                            <th>${players[2].name}</th>
+                            <th>${players[3].name}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            // 倒序显示（最新局在最上）
+            historyRecords.reverse().forEach((record, index) => {
+                const gameNo = historyRecords.length - index;
+                const timeStr = record.time.split(' ')[1]; // 只显示时分秒，节省宽度
+                tableHtml += `<tr><td>第${gameNo}局<br>${timeStr}</td>`;
+                // 遍历每个玩家的本局结果
+                record.details.forEach(item => {
+                    let numClass = 'zero-num';
+                    let amountText = item.amount;
+                    if (item.amount > 0) {
+                        numClass = 'win-num';
+                        amountText = `+${item.amount}`;
+                    } else if (item.amount < 0) {
+                        numClass = 'lose-num';
+                    }
+                    tableHtml += `<td class="${numClass}">${amountText}</td>`;
+                });
+                tableHtml += `</tr>`;
+            });
+            historyRecords.reverse();
+            tableHtml += `
+                    </tbody>
+                </table>
+            `;
+            historyList.innerHTML = tableHtml;
+        }
+
+        // 通用记录单局结果方法
+        function addRoundRecord(roundData) {
+            // 更新玩家总金额
+            roundData.forEach(item => {
+                const player = players.find(p => p.id === item.id);
+                if (player) player.total += Number(item.amount);
+            });
+            // 添加历史记录
+            const now = new Date();
+            const timeStr = formatTime(now);
+            historyRecords.push({
+                time: timeStr,
+                details: JSON.parse(JSON.stringify(roundData))
+            });
+            // 本地保存
+            localStorage.setItem('mahjongPlayers', JSON.stringify(players));
+            localStorage.setItem('mahjongHistory', JSON.stringify(historyRecords));
+            // 更新所有显示
+            updatePlayerDisplay();
+            calcSettleList();
+            updateHistoryDisplay();
+            alert('记录成功！');
+        }
+
+        // 结算清单计算
+        function calcSettleList() {
+            const settleList = document.getElementById('settleList');
+            const tempPlayers = JSON.parse(JSON.stringify(players));
+            let html = '';
+            const creditors = tempPlayers.filter(p => p.total > 0).sort((a, b) => b.total - a.total);
+            const debtors = tempPlayers.filter(p => p.total < 0).sort((a, b) => a.total - b.total);
+            if (creditors.length === 0 && debtors.length === 0) {
+                html = '<div class="empty-tip">暂无记录，先添加对局结果吧～</div>';
+            } else {
+                debtors.forEach(debtor => {
+                    let debt = Math.abs(debtor.total);
+                    if (debt <= 0) return;
+                    creditors.forEach(creditor => {
+                        if (debt <= 0 || creditor.total <= 0) return;
+                        const payAmount = Math.min(debt, creditor.total);
+                        html += `<div class="settle-item">${debtor.name} → ${creditor.name}：${payAmount} 元</div>`;
+                        debt -= payAmount;
+                        creditor.total -= payAmount;
+                        debtor.total += payAmount;
+                    });
+                });
+                if (html === '') html = '<div class="empty-tip">暂无转账，所有人收支平衡～</div>';
+            }
+            settleList.innerHTML = html;
+        }
+
+        // 显示/隐藏自定义模块
+        function showCustomInput() {
+            document.getElementById('customModule').style.display = 'block';
+            clearCustomAmount();
+        }
+        function hideCustomInput() {
+            document.getElementById('customModule').style.display = 'none';
+        }
+
+        // 清空所有记录/仅清空历史
+        function clearAll() {
+            if (confirm('确定要清空所有记录（包括历史、总收支、计时）吗？')) {
+                players = [{ id:1,name:'A',total:0 },{ id:2,name:'B',total:0 },{ id:3,name:'C',total:0 },{ id:4,name:'D',total:0 }];
+                historyRecords = [];
+                clearInterval(timerInterval);
+                isTiming = false;
+                elapsedSeconds = 0;
+                document.getElementById('startTime').textContent = '开始时间：未开始';
+                document.getElementById('timer').textContent = '计时：00:00:00';
+                document.getElementById('timerBtn').textContent = '开始计时';
+                document.getElementById('timerBtn').classList.remove('stop');
+                localStorage.clear();
+                updatePlayerDisplay();
+                calcSettleList();
+                updateHistoryDisplay();
+                alert('已清空所有记录！');
+            }
+        }
+        function clearHistory() {
+            if (confirm('确定要清空所有对局历史记录吗？总收支不会改变')) {
+                historyRecords = [];
+                localStorage.setItem('mahjongHistory', JSON.stringify(historyRecords));
+                updateHistoryDisplay();
+                alert('已清空历史记录！');
+            }
+        }
+    </script>
+</body>
+</html>
