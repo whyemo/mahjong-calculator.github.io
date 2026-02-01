@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>麻将记账工具</title>
+    <title>上海麻将记账工具</title>
     <style>
-        /* 全局样式，适配iPhone触屏 */
+        /* 全局样式 - 修复滚动问题 */
         * {
             margin: 0;
             padding: 0;
@@ -17,6 +17,7 @@
             background-color: #f5f5f5;
             padding: 15px;
             min-height: 100vh;
+            overflow-x: hidden; /* 修复弹窗滚动冲突 */
         }
         .container {
             max-width: 600px;
@@ -27,12 +28,12 @@
             text-align: center;
             color: #333;
             margin-bottom: 10px;
-            font-size: 20px;
+            font-size: 22px;
         }
         .timer-section {
             text-align: center;
             margin-bottom: 20px;
-            padding: 10px;
+            padding: 15px;
             background: white;
             border-radius: 10px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -50,12 +51,12 @@
         }
         .timer-btn {
             width: auto;
-            padding: 0 20px;
-            height: 40px;
-            line-height: 40px;
+            padding: 0 25px;
+            height: 45px;
+            line-height: 45px;
             border: none;
-            border-radius: 6px;
-            font-size: 14px;
+            border-radius: 8px;
+            font-size: 16px;
             color: white;
             background-color: #07c160;
             cursor: pointer;
@@ -67,62 +68,77 @@
         .module {
             background: white;
             border-radius: 10px;
-            padding: 15px;
+            padding: 20px;
             margin-bottom: 15px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .module-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             color: #333;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
             border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .module-title small {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: normal;
             color: #999;
             cursor: pointer;
         }
-        /* 玩家项样式 - 输入框宽度50% */
-        .player-item {
+        /* 玩家&方位设置 */
+        .player-position-item {
             display: flex;
             align-items: center;
-            margin: 10px 0;
+            margin: 12px 0;
+            gap: 10px;
         }
         .player-input {
-            width: 50%;
-            height: 40px;
-            line-height: 40px;
-            border: 1px solid #eee;
-            padding: 0 10px;
-            border-radius: 6px;
-            font-size: 14px;
-            margin-right: 10px;
-        }
-        .player-total {
-            font-size: 14px;
-            color: #666;
-            min-width: 80px;
-        }
-        /* 通用按钮样式 */
-        button {
-            width: 100%;
+            width: 40%;
             height: 45px;
             line-height: 45px;
+            border: 1px solid #eee;
+            padding: 0 12px;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .position-select {
+            width: 30%;
+            height: 45px;
+            line-height: 45px;
+            border: 1px solid #eee;
+            padding: 0 10px;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: white;
+        }
+        .player-total {
+            font-size: 16px;
+            color: #666;
+            min-width: 80px;
+            text-align: right;
+        }
+        /* 通用按钮样式 - 自摸/出冲按钮配色区分 */
+        button {
+            width: 100%;
+            height: 50px;
+            line-height: 50px;
             border: none;
-            border-radius: 6px;
-            font-size: 15px;
+            border-radius: 8px;
+            font-size: 17px;
             color: white;
-            margin: 8px 0;
+            margin: 10px 0;
             cursor: pointer;
         }
         .btn-normal {
-            background-color: #07c160;
+            background-color: #07c160; /* 自摸绿色 */
+        }
+        .btn-chuchong {
+            background-color: #ffc2c2; /* 出冲浅粉色 */
+            color: #333; /* 浅粉色配深色文字更清晰 */
         }
         .btn-warn {
             background-color: #f53f3f;
@@ -132,45 +148,45 @@
         }
         .btn-small {
             width: auto;
-            height: 32px;
-            line-height: 32px;
-            padding: 0 8px;
-            font-size: 12px;
-            border-radius: 4px;
+            height: 40px;
+            line-height: 40px;
+            padding: 0 12px;
+            font-size: 15px;
+            border-radius: 6px;
         }
         .btn-active {
             background-color: #059850 !important;
         }
-        .btn-double {
+        .btn-three { /* 三口按钮专属样式 */
             background-color: #ff9500;
             margin-left: 5px;
         }
-        .btn-double.active {
+        .btn-three.active { /* 三口选中样式 */
             background-color: #e68900 !important;
         }
-        /* 自定义金额模块 - 核心优化样式 */
+        /* 自定义金额模块 */
         .custom-amount-item {
             display: flex;
             align-items: center;
-            margin: 12px 0;
-            gap: 8px;
+            margin: 15px 0;
+            gap: 10px;
         }
         .custom-name {
-            width: 40%;
-            font-size: 14px;
+            width: 35%;
+            font-size: 16px;
             font-weight: 500;
         }
         .amount-btn-group {
             display: flex;
-            gap: 5px;
+            gap: 8px;
         }
         .win-btn, .lose-btn {
-            width: 40px;
-            height: 32px;
-            line-height: 32px;
+            width: 50px;
+            height: 40px;
+            line-height: 40px;
             border: none;
-            border-radius: 4px;
-            font-size: 12px;
+            border-radius: 6px;
+            font-size: 15px;
             color: white;
         }
         .win-btn {
@@ -181,15 +197,87 @@
         }
         .custom-amount-input {
             flex: 1;
-            height: 32px;
-            line-height: 32px;
+            height: 40px;
+            line-height: 40px;
             border: 1px solid #eee;
-            padding: 0 8px;
-            border-radius: 4px;
-            font-size: 14px;
+            padding: 0 10px;
+            border-radius: 6px;
+            font-size: 16px;
             text-align: center;
         }
-        /* 自摸弹窗样式 - 新增双倍按钮 */
+        /* 赢法备注下拉框样式 */
+        .remark-select {
+            width: 100%;
+            height: 45px;
+            line-height: 45px;
+            border: 1px solid #eee;
+            padding: 0 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: white;
+            margin: 10px 0;
+        }
+        /* 出冲快捷记录弹窗样式 - 核心规则修正 */
+        .chuchong-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            z-index: 999;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .chuchong-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+            margin-top: 50px;
+        }
+        .chuchong-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .chuchong-select-item {
+            margin: 12px 0;
+        }
+        .chuchong-label {
+            font-size: 16px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .chuchong-select {
+            width: 100%;
+            height: 45px;
+            line-height: 45px;
+            border: 1px solid #eee;
+            padding: 0 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: white;
+        }
+        .chuchong-amount-input {
+            width: 100%;
+            height: 45px;
+            line-height: 45px;
+            border: 1px solid #eee;
+            padding: 0 12px;
+            border-radius: 8px;
+            font-size: 18px;
+            text-align: center;
+            margin: 10px 0;
+            inputmode: numeric;
+            pattern: "[0-9]*";
+        }
+        /* 自摸弹窗样式 */
         .zim-modal {
             position: fixed;
             top: 0;
@@ -199,41 +287,44 @@
             background: rgba(0,0,0,0.5);
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             z-index: 999;
             padding: 20px;
+            overflow-y: auto;
         }
         .zim-content {
             background: white;
-            padding: 20px;
+            padding: 25px;
             border-radius: 10px;
             width: 100%;
             max-width: 400px;
+            margin-top: 50px;
         }
         .zim-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             margin-bottom: 20px;
             text-align: center;
         }
         .zim-tip {
-            font-size: 13px;
+            font-size: 14px;
             color: #666;
             margin-bottom: 15px;
-            padding: 8px;
+            padding: 10px;
             background-color: #f8f8f8;
-            border-radius: 4px;
+            border-radius: 6px;
             text-align: center;
         }
         .zim-player-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 15px;
+            padding: 15px;
             border: 1px solid #eee;
-            border-radius: 6px;
-            margin-bottom: 10px;
+            border-radius: 8px;
+            margin-bottom: 12px;
             cursor: pointer;
+            font-size: 16px;
         }
         .zim-player-item.active {
             background-color: #07c160;
@@ -242,35 +333,38 @@
         }
         .zim-amount-input {
             width: 100%;
-            height: 40px;
-            line-height: 40px;
+            height: 45px;
+            line-height: 45px;
             border: 1px solid #eee;
-            padding: 0 10px;
-            border-radius: 6px;
+            padding: 0 12px;
+            border-radius: 8px;
             margin: 15px 0;
             text-align: center;
-            font-size: 16px;
+            font-size: 18px;
+            inputmode: numeric;
+            pattern: "[0-9]*";
         }
         .zim-player-name {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 500;
         }
-        /* 历史记录表格样式 - 核心优化 */
+        /* 历史记录表格样式 */
         .history-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
+            font-size: 14px;
             margin-top: 10px;
         }
         .history-table th, .history-table td {
             border: 1px solid #eee;
-            padding: 8px 5px;
+            padding: 10px 5px;
             text-align: center;
         }
         .history-table th {
             background-color: #f8f8f8;
             font-weight: 500;
             color: #333;
+            font-size: 14px;
         }
         .history-table .win-num {
             color: #07c160;
@@ -287,12 +381,45 @@
             text-align: center;
             color: #999;
             padding: 30px 0;
-            font-size: 14px;
+            font-size: 16px;
+        }
+        /* 方位统计模块样式 */
+        .tab-container {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .tab-btn {
+            flex: 1;
+            height: 45px;
+            line-height: 45px;
+            border: none;
+            background-color: #eee;
+            color: #666;
+            font-size: 16px;
+            border-radius: 0;
+            margin: 0;
+        }
+        .tab-btn.active {
+            background-color: #07c160;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .position-stat-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
         }
         /* 结算清单样式 */
         .settle-item {
-            font-size: 15px;
-            line-height: 40px;
+            font-size: 16px;
+            line-height: 45px;
             border-bottom: 1px solid #eee;
             color: #333;
         }
@@ -300,13 +427,31 @@
             text-align: center;
             color: #999;
             padding: 20px 0;
+            font-size: 16px;
+        }
+        /* 三口设置通用样式 - 替换原双倍样式 */
+        .three-tip {
             font-size: 14px;
+            color: #666;
+            margin: 15px 0 8px 0;
+            display: block;
+            font-weight: 500;
+        }
+        .three-player-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>麻将记账工具</h1>
+        <h1>上海麻将记账工具</h1>
         
         <!-- 计时模块 -->
         <div class="timer-section">
@@ -315,38 +460,91 @@
             <button class="timer-btn" id="timerBtn" onclick="toggleTimer()">开始计时</button>
         </div>
 
-        <!-- 玩家设置模块（输入框50%宽度） -->
+        <!-- 玩家&方位设置模块 -->
         <div class="module">
-            <div class="module-title">🔹 玩家设置</div>
-            <div class="player-item">
+            <div class="module-title">🔹 玩家&方位设置</div>
+            <div class="player-position-item">
                 <input type="text" class="player-input" id="player1" value="A" placeholder="玩家1名称">
+                <select class="position-select" id="position1">
+                    <option value="东">东</option>
+                    <option value="南">南</option>
+                    <option value="西">西</option>
+                    <option value="北">北</option>
+                </select>
                 <span class="player-total" id="total1">0 元</span>
             </div>
-            <div class="player-item">
+            <div class="player-position-item">
                 <input type="text" class="player-input" id="player2" value="B" placeholder="玩家2名称">
+                <select class="position-select" id="position2">
+                    <option value="东">东</option>
+                    <option value="南" selected>南</option>
+                    <option value="西">西</option>
+                    <option value="北">北</option>
+                </select>
                 <span class="player-total" id="total2">0 元</span>
             </div>
-            <div class="player-item">
+            <div class="player-position-item">
                 <input type="text" class="player-input" id="player3" value="C" placeholder="玩家3名称">
+                <select class="position-select" id="position3">
+                    <option value="东">东</option>
+                    <option value="南">南</option>
+                    <option value="西" selected>西</option>
+                    <option value="北">北</option>
+                </select>
                 <span class="player-total" id="total3">0 元</span>
             </div>
-            <div class="player-item">
+            <div class="player-position-item">
                 <input type="text" class="player-input" id="player4" value="D" placeholder="玩家4名称">
+                <select class="position-select" id="position4">
+                    <option value="东">东</option>
+                    <option value="南">南</option>
+                    <option value="西">西</option>
+                    <option value="北" selected>北</option>
+                </select>
                 <span class="player-total" id="total4">0 元</span>
             </div>
         </div>
 
-        <!-- 快捷记录模块 -->
+        <!-- 快捷记录模块 - 按钮样式区分 -->
         <div class="module">
             <div class="module-title">🔹 快捷记录</div>
             <button class="btn-normal" onclick="showZimModal()">自摸</button>
+            <button class="btn-chuchong" onclick="showChuchongModal()">出冲</button>
             <button class="btn-secondary" onclick="showCustomInput()">自定义本局金额</button>
             <button class="btn-warn" onclick="clearAll()">清空所有记录</button>
         </div>
 
-        <!-- 自定义金额模块 - 核心优化 -->
+        <!-- 自定义金额模块 - 三口设置 -->
         <div class="module" id="customModule" style="display: none;">
             <div class="module-title">🔹 自定义本局金额</div>
+            <!-- 赢法备注下拉框 -->
+            <select class="remark-select" id="roundRemark">
+                <option value="">—— 选择本局赢法（可选）——</option>
+                <option value="清一色">清一色</option>
+                <option value="混碰">混碰</option>
+                <option value="杠开">杠开</option>
+                <option value="全风向">全风向</option>
+                <option value="七小对">七小对</option>
+                <option value="大吊车">大吊车</option>
+            </select>
+            <!-- 三口设置 - 替换原双倍支付 -->
+            <label class="three-tip">三口设置（参与输赢分担）：</label>
+            <div class="three-player-item" id="customThree1" onclick="toggleCustomThree(1)">
+                <span class="zim-player-name" id="customThreeName1">A</span>
+                <button class="btn-small btn-three" id="customThreeBtn1">是否三口</button>
+            </div>
+            <div class="three-player-item" id="customThree2" onclick="toggleCustomThree(2)">
+                <span class="zim-player-name" id="customThreeName2">B</span>
+                <button class="btn-small btn-three" id="customThreeBtn2">是否三口</button>
+            </div>
+            <div class="three-player-item" id="customThree3" onclick="toggleCustomThree(3)">
+                <span class="zim-player-name" id="customThreeName3">C</span>
+                <button class="btn-small btn-three" id="customThreeBtn3">是否三口</button>
+            </div>
+            <div class="three-player-item" id="customThree4" onclick="toggleCustomThree(4)">
+                <span class="zim-player-name" id="customThreeName4">D</span>
+                <button class="btn-small btn-three" id="customThreeBtn4">是否三口</button>
+            </div>
             <!-- 玩家1 -->
             <div class="custom-amount-item">
                 <span class="custom-name" id="customName1">A</span>
@@ -388,11 +586,82 @@
             <button class="btn-secondary" onclick="hideCustomInput()">取消</button>
         </div>
 
-        <!-- 自摸弹窗 - 核心优化：双倍按钮+金额提示 -->
+        <!-- 出冲快捷记录弹窗 - 核心规则重构：三口玩家共同分担费用 -->
+        <div class="chuchong-modal" id="chuchongModal" style="display: none;">
+            <div class="chuchong-content">
+                <div class="chuchong-title">出冲记录</div>
+                <!-- 赢法备注 -->
+                <select class="remark-select" id="chuchongRemark">
+                    <option value="">—— 选择本局赢法（可选）——</option>
+                    <option value="清一色">清一色</option>
+                    <option value="混碰">混碰</option>
+                    <option value="杠开">杠开</option>
+                    <option value="全风向">全风向</option>
+                    <option value="七小对">七小对</option>
+                    <option value="大吊车">大吊车</option>
+                </select>
+                <!-- 选择出冲玩家（输家） -->
+                <div class="chuchong-select-item">
+                    <label class="chuchong-label">出冲玩家（基础输家）</label>
+                    <select class="chuchong-select" id="chuchongLoser">
+                        <option value="1">A</option>
+                        <option value="2">B</option>
+                        <option value="3">C</option>
+                        <option value="4">D</option>
+                    </select>
+                </div>
+                <!-- 选择赢家 -->
+                <div class="chuchong-select-item">
+                    <label class="chuchong-label">赢家</label>
+                    <select class="chuchong-select" id="chuchongWinner">
+                        <option value="1">A</option>
+                        <option value="2" selected>B</option>
+                        <option value="3">C</option>
+                        <option value="4">D</option>
+                    </select>
+                </div>
+                <!-- 基础金额输入 -->
+                <input type="number" class="chuchong-amount-input" id="chuchongAmount" placeholder="输入基础单份金额" value="10" inputmode="numeric" pattern="[0-9]*">
+                <!-- 核心：三口设置（除赢家外均可选择，选中则共同分担出冲费用） -->
+                <label class="three-tip">三口设置（选中=参与费用分担，除赢家外均可选）：</label>
+                <div id="chuchongThreeContainer">
+                    <div class="three-player-item" id="chuchongThree1" onclick="toggleChuchongThree(1)">
+                        <span class="zim-player-name" id="chuchongThreeName1">A</span>
+                        <button class="btn-small btn-three" id="chuchongThreeBtn1">是否三口</button>
+                    </div>
+                    <div class="three-player-item" id="chuchongThree2" onclick="toggleChuchongThree(2)">
+                        <span class="zim-player-name" id="chuchongThreeName2">B</span>
+                        <button class="btn-small btn-three" id="chuchongThreeBtn2">是否三口</button>
+                    </div>
+                    <div class="three-player-item" id="chuchongThree3" onclick="toggleChuchongThree(3)">
+                        <span class="zim-player-name" id="chuchongThreeName3">C</span>
+                        <button class="btn-small btn-three" id="chuchongThreeBtn3">是否三口</button>
+                    </div>
+                    <div class="three-player-item" id="chuchongThree4" onclick="toggleChuchongThree(4)">
+                        <span class="zim-player-name" id="chuchongThreeName4">D</span>
+                        <button class="btn-small btn-three" id="chuchongThreeBtn4">是否三口</button>
+                    </div>
+                </div>
+                <button class="btn-normal" onclick="confirmChuchong()">确认记录</button>
+                <button class="btn-secondary" onclick="hideChuchongModal()">取消</button>
+            </div>
+        </div>
+
+        <!-- 自摸弹窗 - 三口设置保留 -->
         <div class="zim-modal" id="zimModal" style="display: none;">
             <div class="zim-content">
-                <div class="zim-title">选择自摸玩家</div>
-                <div class="zim-tip">请选择自摸玩家，其他玩家可设置双倍支付（如吃三口）</div>
+                <div class="zim-title">自摸记录</div>
+                <!-- 赢法备注 -->
+                <select class="remark-select" id="zimRemark">
+                    <option value="">—— 选择本局赢法（可选）——</option>
+                    <option value="清一色">清一色</option>
+                    <option value="混碰">混碰</option>
+                    <option value="杠开">杠开</option>
+                    <option value="全风向">全风向</option>
+                    <option value="七小对">七小对</option>
+                    <option value="大吊车">大吊车</option>
+                </select>
+                <div class="zim-tip">请选择自摸玩家，三口玩家将共同分担输家费用</div>
                 <!-- 自摸玩家选择 -->
                 <div class="zim-player-item" id="zimPlayer1" onclick="selectZimPlayer(1)">
                     <span class="zim-player-name">A</span>
@@ -410,26 +679,26 @@
                     <span class="zim-player-name">D</span>
                     <span>✓ 自摸</span>
                 </div>
-                <!-- 金额输入提示修改 -->
-                <input type="number" class="zim-amount-input" id="zimAmount" placeholder="请输入每位玩家输的基础金额" value="10">
-                <!-- 非自摸玩家双倍设置 -->
-                <div id="zimDoubleContainer" style="display: none;">
-                    <div class="zim-tip" style="margin-top: 0;">非自摸玩家双倍支付设置</div>
-                    <div class="zim-player-item" id="zimDouble1" onclick="toggleZimDouble(1)">
+                <!-- 金额输入 -->
+                <input type="number" class="zim-amount-input" id="zimAmount" placeholder="请输入基础单份输的金额" value="10" inputmode="numeric" pattern="[0-9]*">
+                <!-- 非自摸玩家三口设置 -->
+                <div id="zimThreeContainer" style="display: none;">
+                    <div class="zim-tip" style="margin-top: 0;">非自摸玩家三口设置（选中=参与费用分担）</div>
+                    <div class="three-player-item" id="zimThree1" onclick="toggleZimThree(1)">
                         <span class="zim-player-name">A</span>
-                        <button class="btn-small btn-double" id="doubleBtn1">是否双倍</button>
+                        <button class="btn-small btn-three" id="threeBtn1">是否三口</button>
                     </div>
-                    <div class="zim-player-item" id="zimDouble2" onclick="toggleZimDouble(2)">
+                    <div class="three-player-item" id="zimThree2" onclick="toggleZimThree(2)">
                         <span class="zim-player-name">B</span>
-                        <button class="btn-small btn-double" id="doubleBtn2">是否双倍</button>
+                        <button class="btn-small btn-three" id="threeBtn2">是否三口</button>
                     </div>
-                    <div class="zim-player-item" id="zimDouble3" onclick="toggleZimDouble(3)">
+                    <div class="three-player-item" id="zimThree3" onclick="toggleZimThree(3)">
                         <span class="zim-player-name">C</span>
-                        <button class="btn-small btn-double" id="doubleBtn3">是否双倍</button>
+                        <button class="btn-small btn-three" id="threeBtn3">是否三口</button>
                     </div>
-                    <div class="zim-player-item" id="zimDouble4" onclick="toggleZimDouble(4)">
+                    <div class="three-player-item" id="zimThree4" onclick="toggleZimThree(4)">
                         <span class="zim-player-name">D</span>
-                        <button class="btn-small btn-double" id="doubleBtn4">是否双倍</button>
+                        <button class="btn-small btn-three" id="threeBtn4">是否三口</button>
                     </div>
                 </div>
                 <button class="btn-normal" onclick="confirmZim()">确认记录</button>
@@ -437,14 +706,55 @@
             </div>
         </div>
 
-        <!-- 历史记录模块 - 核心优化：表格形式 -->
+        <!-- 历史记录+方位统计 Tab模块 -->
         <div class="module">
-            <div class="module-title">
-                🔹 每局历史记录
-                <small onclick="clearHistory()">清空历史</small>
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="switchTab('history')">每局历史记录</button>
+                <button class="tab-btn" onclick="switchTab('position')">方位胜率统计</button>
             </div>
-            <div id="historyList">
-                <div class="history-empty">暂无对局记录～</div>
+            <!-- 历史记录Tab -->
+            <div class="tab-content active" id="historyTab">
+                <div id="historyList">
+                    <div class="history-empty">暂无对局记录～</div>
+                </div>
+            </div>
+            <!-- 方位统计Tab -->
+            <div class="tab-content" id="positionTab">
+                <div class="position-stat-item">
+                    <span>东方位总赢额：</span>
+                    <span id="statEast">0 元</span>
+                </div>
+                <div class="position-stat-item">
+                    <span>南方位总赢额：</span>
+                    <span id="statSouth">0 元</span>
+                </div>
+                <div class="position-stat-item">
+                    <span>西方位总赢额：</span>
+                    <span id="statWest">0 元</span>
+                </div>
+                <div class="position-stat-item">
+                    <span>北方位总赢额：</span>
+                    <span id="statNorth">0 元</span>
+                </div>
+                <div class="position-stat-item">
+                    <span>东方位对局数：</span>
+                    <span id="gameEast">0 局</span>
+                </div>
+                <div class="position-stat-item">
+                    <span>南方位对局数：</span>
+                    <span id="gameSouth">0 局</span>
+                </div>
+                <div class="position-stat-item">
+                    <span>西方位对局数：</span>
+                    <span id="gameWest">0 局</span>
+                </div>
+                <div class="position-stat-item">
+                    <span>北方位对局数：</span>
+                    <span id="gameNorth">0 局</span>
+                </div>
+                <div class="empty-tip" style="margin-top: 20px;">
+                    数据会随对局记录自动统计，玩得越多越准～
+                </div>
             </div>
         </div>
 
@@ -460,10 +770,10 @@
     <script>
         // 初始化全局数据
         let players = JSON.parse(localStorage.getItem('mahjongPlayers')) || [
-            { id: 1, name: 'A', total: 0 },
-            { id: 2, name: 'B', total: 0 },
-            { id: 3, name: 'C', total: 0 },
-            { id: 4, name: 'D', total: 0 }
+            { id: 1, name: 'A', total: 0, position: '东' },
+            { id: 2, name: 'B', total: 0, position: '南' },
+            { id: 3, name: 'C', total: 0, position: '西' },
+            { id: 4, name: 'D', total: 0, position: '北' }
         ];
         let historyRecords = JSON.parse(localStorage.getItem('mahjongHistory')) || [];
         // 计时相关
@@ -471,21 +781,38 @@
         let startTime = null;
         let isTiming = false;
         let elapsedSeconds = 0;
-        // 自摸相关 - 新增双倍支付标记
+        // 自摸相关
         let selectedZimPlayerId = null;
-        let zimDoubleMap = { 1: false, 2: false, 3: false, 4: false };
-        // 自定义金额相关 - 新增类型标记（win/lose/none）
+        let zimThreeMap = { 1: false, 2: false, 3: false, 4: false }; // 三口替换双倍
+        // 出冲相关 - 核心：三口玩家共同分担费用
+        let chuchongThreeMap = { 1: false, 2: false, 3: false, 4: false }; // 三口替换双倍
+        // 自定义金额相关
+        let customThreeMap = { 1: false, 2: false, 3: false, 4: false }; // 三口替换双倍
 
         // 页面加载初始化
         window.onload = function() {
             updatePlayerDisplay();
             calcSettleList();
             updateHistoryDisplay();
+            updatePositionStat();
             // 监听玩家名称修改
             document.getElementById('player1').addEventListener('input', updatePlayerName);
             document.getElementById('player2').addEventListener('input', updatePlayerName);
             document.getElementById('player3').addEventListener('input', updatePlayerName);
             document.getElementById('player4').addEventListener('input', updatePlayerName);
+            // 监听方位修改
+            document.getElementById('position1').addEventListener('change', updatePlayerPosition);
+            document.getElementById('position2').addEventListener('change', updatePlayerPosition);
+            document.getElementById('position3').addEventListener('change', updatePlayerPosition);
+            document.getElementById('position4').addEventListener('change', updatePlayerPosition);
+            // 监听出冲赢家选择变化，更新三口列表显示（隐藏赢家）
+            document.getElementById('chuchongWinner').addEventListener('change', function() {
+                updateChuchongThreeList();
+                resetChuchongThree();
+            });
+            document.getElementById('chuchongLoser').addEventListener('change', function() {
+                resetChuchongThree();
+            });
             // 恢复计时状态
             const timerData = JSON.parse(localStorage.getItem('mahjongTimer'));
             if (timerData && timerData.isTiming) {
@@ -498,9 +825,13 @@
                 startTimerInterval();
                 updateTimerDisplay();
             }
+            // 初始化三口按钮显示
+            updateCustomThreeNames();
+            updateChuchongThreeNames();
+            updateChuchongThreeList();
         };
 
-        // 工具函数：格式化时间（年月日 时分秒）
+        // 工具函数：格式化时间
         function formatTime(date) {
             if (!date) return '未开始';
             const year = date.getFullYear();
@@ -512,7 +843,7 @@
             return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
         }
 
-        // 工具函数：格式化计时（HH:MM:SS）
+        // 工具函数：格式化计时
         function formatElapsedTime(seconds) {
             const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
             const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
@@ -520,7 +851,7 @@
             return `${h}:${m}:${s}`;
         }
 
-        // 计时功能：开始/停止
+        // 计时功能
         function toggleTimer() {
             if (!isTiming) {
                 startTime = new Date();
@@ -537,7 +868,6 @@
                 document.getElementById('timerBtn').classList.remove('stop');
                 alert(`麻将对局结束！总时长：${formatElapsedTime(elapsedSeconds)}`);
             }
-            // 保存计时状态
             localStorage.setItem('mahjongTimer', JSON.stringify({
                 isTiming,
                 startTime: startTime ? startTime.toISOString() : null,
@@ -560,60 +890,125 @@
             document.getElementById('timer').textContent = `计时：${formatElapsedTime(elapsedSeconds)}`;
         }
 
-        // 玩家名称更新：同步所有模块名称
+        // 更新玩家名称
         function updatePlayerName() {
             players[0].name = document.getElementById('player1').value || 'A';
             players[1].name = document.getElementById('player2').value || 'B';
             players[2].name = document.getElementById('player3').value || 'C';
             players[3].name = document.getElementById('player4').value || 'D';
-            // 同步自定义模块
+            // 同步所有模块名称
             document.getElementById('customName1').textContent = players[0].name;
             document.getElementById('customName2').textContent = players[1].name;
             document.getElementById('customName3').textContent = players[2].name;
             document.getElementById('customName4').textContent = players[3].name;
-            // 同步自摸弹窗
             document.getElementById('zimPlayer1').querySelector('.zim-player-name').textContent = players[0].name;
             document.getElementById('zimPlayer2').querySelector('.zim-player-name').textContent = players[1].name;
             document.getElementById('zimPlayer3').querySelector('.zim-player-name').textContent = players[2].name;
             document.getElementById('zimPlayer4').querySelector('.zim-player-name').textContent = players[3].name;
-            document.getElementById('zimDouble1').querySelector('.zim-player-name').textContent = players[0].name;
-            document.getElementById('zimDouble2').querySelector('.zim-player-name').textContent = players[1].name;
-            document.getElementById('zimDouble3').querySelector('.zim-player-name').textContent = players[2].name;
-            document.getElementById('zimDouble4').querySelector('.zim-player-name').textContent = players[3].name;
-            // 保存并更新显示
+            document.getElementById('zimThree1').querySelector('.zim-player-name').textContent = players[0].name;
+            document.getElementById('zimThree2').querySelector('.zim-player-name').textContent = players[1].name;
+            document.getElementById('zimThree3').querySelector('.zim-player-name').textContent = players[2].name;
+            document.getElementById('zimThree4').querySelector('.zim-player-name').textContent = players[3].name;
+            // 更新出冲弹窗下拉框
+            const chuchongLoser = document.getElementById('chuchongLoser');
+            const chuchongWinner = document.getElementById('chuchongWinner');
+            chuchongLoser.options[0].text = players[0].name;
+            chuchongLoser.options[1].text = players[1].name;
+            chuchongLoser.options[2].text = players[2].name;
+            chuchongLoser.options[3].text = players[3].name;
+            chuchongWinner.options[0].text = players[0].name;
+            chuchongWinner.options[1].text = players[1].name;
+            chuchongWinner.options[2].text = players[2].name;
+            chuchongWinner.options[3].text = players[3].name;
+            // 更新三口玩家名称
+            updateCustomThreeNames();
+            updateChuchongThreeNames();
+            // 保存并更新
             localStorage.setItem('mahjongPlayers', JSON.stringify(players));
             calcSettleList();
             updateHistoryDisplay();
+            updatePositionStat();
         }
+
+        // 更新自定义金额三口玩家名称
+        function updateCustomThreeNames() {
+            document.getElementById('customThreeName1').textContent = players[0].name;
+            document.getElementById('customThreeName2').textContent = players[1].name;
+            document.getElementById('customThreeName3').textContent = players[2].name;
+            document.getElementById('customThreeName4').textContent = players[3].name;
+        }
+
+        // 更新出冲三口支付的玩家名称
+        function updateChuchongThreeNames() {
+            document.getElementById('chuchongThreeName1').textContent = players[0].name;
+            document.getElementById('chuchongThreeName2').textContent = players[1].name;
+            document.getElementById('chuchongThreeName3').textContent = players[2].name;
+            document.getElementById('chuchongThreeName4').textContent = players[3].name;
+        }
+
+        // 根据选择的赢家，隐藏赢家的三口选项，显示其他玩家
+        function updateChuchongThreeList() {
+            const winnerId = Number(document.getElementById('chuchongWinner').value);
+            for (let i = 1; i <= 4; i++) {
+                const threeItem = document.getElementById(`chuchongThree${i}`);
+                threeItem.style.display = i === winnerId ? 'none' : 'flex';
+            }
+        }
+
+        // 更新玩家方位
+        function updatePlayerPosition() {
+            players[0].position = document.getElementById('position1').value;
+            players[1].position = document.getElementById('position2').value;
+            players[2].position = document.getElementById('position3').value;
+            players[3].position = document.getElementById('position4').value;
+            localStorage.setItem('mahjongPlayers', JSON.stringify(players));
+            updatePositionStat();
+        }
+
+        // 更新玩家显示
         function updatePlayerDisplay() {
             document.getElementById('player1').value = players[0].name;
             document.getElementById('player2').value = players[1].name;
             document.getElementById('player3').value = players[2].name;
             document.getElementById('player4').value = players[3].name;
+            document.getElementById('position1').value = players[0].position;
+            document.getElementById('position2').value = players[1].position;
+            document.getElementById('position3').value = players[2].position;
+            document.getElementById('position4').value = players[3].position;
             document.getElementById('total1').textContent = players[0].total + ' 元';
             document.getElementById('total2').textContent = players[1].total + ' 元';
             document.getElementById('total3').textContent = players[2].total + ' 元';
             document.getElementById('total4').textContent = players[3].total + ' 元';
-            // 同步名称
             updatePlayerName();
         }
 
-        // 核心优化1：自定义金额 - 赢/输按钮交互（点击即聚焦输入框，自动带正负，无默认0）
+        // 自定义金额 - 赢/输按钮交互
         function setAmountType(playerId, type) {
             const input = document.getElementById(`custom${playerId}`);
             const winBtn = input.parentElement.querySelector('.win-btn');
             const loseBtn = input.parentElement.querySelector('.lose-btn');
-            // 重置按钮样式
             winBtn.classList.remove('btn-active');
             loseBtn.classList.remove('btn-active');
-            // 设置类型并高亮按钮
             input.dataset.type = type;
             type === 'win' ? winBtn.classList.add('btn-active') : loseBtn.classList.add('btn-active');
-            // 聚焦输入框，清空原有内容（直接输入数字即可）
             input.value = '';
             input.focus();
         }
-        // 自定义金额：清空
+
+        // 自定义金额 - 切换三口设置
+        function toggleCustomThree(playerId) {
+            customThreeMap[playerId] = !customThreeMap[playerId];
+            const btn = document.getElementById(`customThreeBtn${playerId}`);
+            if (customThreeMap[playerId]) {
+                btn.classList.add('btn-active');
+                btn.textContent = '三口✓';
+            } else {
+                btn.classList.remove('btn-active');
+                btn.textContent = '是否三口';
+            }
+        }
+
+        // 清空自定义金额
         function clearCustomAmount() {
             for (let i = 1; i <= 4; i++) {
                 const input = document.getElementById(`custom${i}`);
@@ -623,115 +1018,213 @@
                 const loseBtn = input.parentElement.querySelector('.lose-btn');
                 winBtn.classList.remove('btn-active');
                 loseBtn.classList.remove('btn-active');
+                // 重置三口
+                customThreeMap[i] = false;
+                const threeBtn = document.getElementById(`customThreeBtn${i}`);
+                threeBtn.classList.remove('btn-active');
+                threeBtn.textContent = '是否三口';
             }
+            document.getElementById('roundRemark').value = '';
         }
-        // 自定义金额：记录本局
+
+        // 自定义金额：记录本局（含三口计算）
         function addCustomRound() {
             const roundData = [];
             let total = 0;
+            const remark = document.getElementById('roundRemark').value;
             for (let i = 1; i <= 4; i++) {
                 const input = document.getElementById(`custom${i}`);
                 const amountVal = Number(input.value) || 0;
                 const type = input.dataset.type;
-                // 根据类型计算最终金额
-                let finalAmount = 0;
-                if (type === 'win') finalAmount = Math.abs(amountVal);
-                else if (type === 'lose') finalAmount = -Math.abs(amountVal);
-                else finalAmount = 0;
+                // 计算三口金额
+                let baseAmount = 0;
+                if (type === 'win') baseAmount = Math.abs(amountVal);
+                else if (type === 'lose') baseAmount = -Math.abs(amountVal);
+                // 三口仅作用于输的金额，选中则分担对应费用
+                let finalAmount = baseAmount;
+                if (baseAmount < 0 && customThreeMap[i]) {
+                    finalAmount = baseAmount;
+                }
                 roundData.push({ id: i, amount: finalAmount });
                 total += finalAmount;
             }
-            // 校验收支平衡
             if (total !== 0) {
                 alert('本局收支不平衡！\n赢的钱要等于输的钱');
                 return;
             }
-            // 记录数据
-            addRoundRecord(roundData);
+            addRoundRecord(roundData, remark);
             hideCustomInput();
             clearCustomAmount();
         }
 
-        // 核心优化2：自摸功能 - 选择自摸玩家+双倍支付开关
+        // 出冲快捷记录 - 初始化
+        function showChuchongModal() {
+            document.getElementById('chuchongModal').style.display = 'flex';
+            document.getElementById('chuchongRemark').value = '';
+            document.getElementById('chuchongAmount').value = '10';
+            // 重置三口状态和显示
+            resetChuchongThree();
+            updateChuchongThreeList();
+        }
+
+        // 重置出冲所有玩家的三口状态
+        function resetChuchongThree() {
+            chuchongThreeMap = { 1: false, 2: false, 3: false, 4: false };
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`chuchongThreeBtn${i}`);
+                btn.classList.remove('btn-active');
+                btn.textContent = '是否三口';
+            }
+        }
+
+        // 出冲单个玩家切换三口设置
+        function toggleChuchongThree(playerId) {
+            chuchongThreeMap[playerId] = !chuchongThreeMap[playerId];
+            const btn = document.getElementById(`chuchongThreeBtn${playerId}`);
+            if (chuchongThreeMap[playerId]) {
+                btn.classList.add('btn-active');
+                btn.textContent = '三口✓';
+            } else {
+                btn.classList.remove('btn-active');
+                btn.textContent = '是否三口';
+            }
+        }
+
+        function hideChuchongModal() {
+            document.getElementById('chuchongModal').style.display = 'none';
+        }
+
+        // 核心重构：出冲确认记录，按【三口玩家共同分担费用】规则计算
+        // 规则：
+        // 1. 出冲玩家（loserId）默认必担责，必出基础金额
+        // 2. 除赢家外，勾选「三口✓」的玩家加入「担责列表」，各出基础金额
+        // 3. 赢家获得所有担责玩家的金额总和
+        function confirmChuchong() {
+            const loserId = Number(document.getElementById('chuchongLoser').value);
+            const winnerId = Number(document.getElementById('chuchongWinner').value);
+            const baseAmount = Number(document.getElementById('chuchongAmount').value) || 0;
+            const remark = document.getElementById('chuchongRemark').value;
+            
+            // 基础校验
+            if (loserId === winnerId) {
+                alert('出冲玩家和赢家不能是同一个人！');
+                return;
+            }
+            if (baseAmount <= 0) {
+                alert('请输入有效的基础金额（大于0）！');
+                return;
+            }
+
+            // 构建担责列表：出冲玩家默认加入 + 勾选三口的玩家（排除赢家）
+            const responsiblePlayers = new Set();
+            responsiblePlayers.add(loserId); // 出冲玩家必担责
+            
+            // 遍历所有玩家，添加勾选三口的非赢家玩家
+            for (let i = 1; i <= 4; i++) {
+                if (i !== winnerId && chuchongThreeMap[i]) {
+                    responsiblePlayers.add(i);
+                }
+            }
+
+            // 计算每局金额
+            const roundData = [];
+            let winnerTotal = 0;
+            
+            for (let i = 1; i <= 4; i++) {
+                if (i === winnerId) {
+                    // 赢家先占位，最后统一赋值
+                    roundData.push({ id: i, amount: 0 });
+                } else if (responsiblePlayers.has(i)) {
+                    // 担责玩家：出基础金额（负数）
+                    roundData.push({ id: i, amount: -baseAmount });
+                    winnerTotal += baseAmount;
+                } else {
+                    // 非担责玩家：0
+                    roundData.push({ id: i, amount: 0 });
+                }
+            }
+
+            // 给赢家赋值总赢额
+            roundData[winnerId - 1].amount = winnerTotal;
+            
+            // 记录本局
+            addRoundRecord(roundData, remark);
+            hideChuchongModal();
+        }
+
+        // 自摸功能
         function showZimModal() {
             document.getElementById('zimModal').style.display = 'flex';
-            // 重置自摸和双倍状态
             selectedZimPlayerId = null;
-            zimDoubleMap = { 1: false, 2: false, 3: false, 4: false };
+            zimThreeMap = { 1: false, 2: false, 3: false, 4: false };
             document.querySelectorAll('.zim-player-item').forEach(item => item.classList.remove('active'));
-            document.querySelectorAll('.btn-double').forEach(btn => {
+            document.querySelectorAll('.btn-three').forEach(btn => {
                 btn.classList.remove('btn-active');
-                btn.textContent = '是否双倍';
+                btn.textContent = '是否三口';
             });
-            document.getElementById('zimDoubleContainer').style.display = 'none';
-            document.getElementById('zimAmount').value = 10;
+            document.getElementById('zimThreeContainer').style.display = 'none';
+            document.getElementById('zimAmount').value = '10';
+            document.getElementById('zimRemark').value = '';
         }
         function hideZimModal() {
             document.getElementById('zimModal').style.display = 'none';
         }
-        // 选择自摸玩家
         function selectZimPlayer(id) {
             selectedZimPlayerId = id;
-            // 重置自摸玩家样式
             document.querySelectorAll('.zim-player-item').forEach(item => item.classList.remove('active'));
             document.getElementById(`zimPlayer${id}`).classList.add('active');
-            // 显示双倍支付设置容器，隐藏自摸玩家的双倍按钮
-            document.getElementById('zimDoubleContainer').style.display = 'block';
+            document.getElementById('zimThreeContainer').style.display = 'block';
             for (let i = 1; i <= 4; i++) {
-                const doubleItem = document.getElementById(`zimDouble${i}`);
-                doubleItem.style.display = i === id ? 'none' : 'flex';
+                const threeItem = document.getElementById(`zimThree${i}`);
+                threeItem.style.display = i === id ? 'none' : 'flex';
             }
         }
-        // 切换非自摸玩家双倍支付
-        function toggleZimDouble(id) {
-            zimDoubleMap[id] = !zimDoubleMap[id];
-            const btn = document.getElementById(`doubleBtn${id}`);
-            if (zimDoubleMap[id]) {
+        function toggleZimThree(id) {
+            zimThreeMap[id] = !zimThreeMap[id];
+            const btn = document.getElementById(`threeBtn${id}`);
+            if (zimThreeMap[id]) {
                 btn.classList.add('btn-active');
-                btn.textContent = '双倍✓';
+                btn.textContent = '三口✓';
             } else {
                 btn.classList.remove('btn-active');
-                btn.textContent = '是否双倍';
+                btn.textContent = '是否三口';
             }
         }
-        // 自摸：确认记录
         function confirmZim() {
             if (!selectedZimPlayerId) {
                 alert('请先选择自摸的玩家！');
                 return;
             }
             const baseAmount = Number(document.getElementById('zimAmount').value) || 0;
+            const remark = document.getElementById('zimRemark').value;
             if (baseAmount <= 0) {
                 alert('请输入有效的基础金额（大于0）！');
                 return;
             }
-            // 构建自摸数据：自摸玩家赢，其他玩家按双倍/基础支付
             const roundData = [];
             let zimWinTotal = 0;
             for (let i = 1; i <= 4; i++) {
                 if (i === selectedZimPlayerId) {
-                    roundData.push({ id: i, amount: 0 }); // 先占位，最后计算总赢额
+                    roundData.push({ id: i, amount: 0 });
                 } else {
-                    const payAmount = zimDoubleMap[i] ? baseAmount * 2 : baseAmount;
+                    // 自摸三口规则：勾选三口的玩家双倍支付
+                    const payAmount = zimThreeMap[i] ? baseAmount * 2 : baseAmount;
                     roundData.push({ id: i, amount: -payAmount });
                     zimWinTotal += payAmount;
                 }
             }
-            // 设置自摸玩家的赢额
             roundData[selectedZimPlayerId - 1].amount = zimWinTotal;
-            // 记录数据
-            addRoundRecord(roundData);
+            addRoundRecord(roundData, remark);
             hideZimModal();
         }
 
-        // 核心优化3：历史记录 - 表格形式展示（横向玩家，纵向局数）
+        // 历史记录表格
         function updateHistoryDisplay() {
             const historyList = document.getElementById('historyList');
             if (historyRecords.length === 0) {
                 historyList.innerHTML = '<div class="history-empty">暂无对局记录～</div>';
                 return;
             }
-            // 构建表格：表头=玩家名称，表体=每局结果
             let tableHtml = `
                 <table class="history-table">
                     <thead>
@@ -741,16 +1234,16 @@
                             <th>${players[1].name}</th>
                             <th>${players[2].name}</th>
                             <th>${players[3].name}</th>
+                            <th>本局赢法</th>
                         </tr>
                     </thead>
                     <tbody>
             `;
-            // 倒序显示（最新局在最上）
             historyRecords.reverse().forEach((record, index) => {
                 const gameNo = historyRecords.length - index;
-                const timeStr = record.time.split(' ')[1]; // 只显示时分秒，节省宽度
+                const timeStr = record.time.split(' ')[1];
                 tableHtml += `<tr><td>第${gameNo}局<br>${timeStr}</td>`;
-                // 遍历每个玩家的本局结果
+                // 玩家输赢
                 record.details.forEach(item => {
                     let numClass = 'zero-num';
                     let amountText = item.amount;
@@ -762,7 +1255,9 @@
                     }
                     tableHtml += `<td class="${numClass}">${amountText}</td>`;
                 });
-                tableHtml += `</tr>`;
+                // 赢法备注
+                const remarkText = record.remark || '无';
+                tableHtml += `<td>${remarkText}</td></tr>`;
             });
             historyRecords.reverse();
             tableHtml += `
@@ -772,8 +1267,43 @@
             historyList.innerHTML = tableHtml;
         }
 
+        // 方位统计更新
+        function updatePositionStat() {
+            let stat = {
+                东: { total: 0, games: 0 },
+                南: { total: 0, games: 0 },
+                西: { total: 0, games: 0 },
+                北: { total: 0, games: 0 }
+            };
+            historyRecords.forEach(record => {
+                record.details.forEach(item => {
+                    const player = players.find(p => p.id === item.id);
+                    if (player) {
+                        stat[player.position].total += item.amount;
+                        stat[player.position].games += 1;
+                    }
+                });
+            });
+            document.getElementById('statEast').textContent = stat.东.total + ' 元';
+            document.getElementById('statSouth').textContent = stat.南.total + ' 元';
+            document.getElementById('statWest').textContent = stat.西.total + ' 元';
+            document.getElementById('statNorth').textContent = stat.北.total + ' 元';
+            document.getElementById('gameEast').textContent = stat.东.games + ' 局';
+            document.getElementById('gameSouth').textContent = stat.南.games + ' 局';
+            document.getElementById('gameWest').textContent = stat.西.games + ' 局';
+            document.getElementById('gameNorth').textContent = stat.北.games + ' 局';
+        }
+
+        // Tab切换
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+        }
+
         // 通用记录单局结果方法
-        function addRoundRecord(roundData) {
+        function addRoundRecord(roundData, remark = '') {
             // 更新玩家总金额
             roundData.forEach(item => {
                 const player = players.find(p => p.id === item.id);
@@ -784,7 +1314,8 @@
             const timeStr = formatTime(now);
             historyRecords.push({
                 time: timeStr,
-                details: JSON.parse(JSON.stringify(roundData))
+                details: JSON.parse(JSON.stringify(roundData)),
+                remark: remark
             });
             // 本地保存
             localStorage.setItem('mahjongPlayers', JSON.stringify(players));
@@ -793,6 +1324,7 @@
             updatePlayerDisplay();
             calcSettleList();
             updateHistoryDisplay();
+            updatePositionStat();
             alert('记录成功！');
         }
 
@@ -832,10 +1364,15 @@
             document.getElementById('customModule').style.display = 'none';
         }
 
-        // 清空所有记录/仅清空历史
+        // 清空所有记录
         function clearAll() {
             if (confirm('确定要清空所有记录（包括历史、总收支、计时）吗？')) {
-                players = [{ id:1,name:'A',total:0 },{ id:2,name:'B',total:0 },{ id:3,name:'C',total:0 },{ id:4,name:'D',total:0 }];
+                players = [
+                    { id:1,name:'A',total:0,position:'东' },
+                    { id:2,name:'B',total:0,position:'南' },
+                    { id:3,name:'C',total:0,position:'西' },
+                    { id:4,name:'D',total:0,position:'北' }
+                ];
                 historyRecords = [];
                 clearInterval(timerInterval);
                 isTiming = false;
@@ -848,15 +1385,8 @@
                 updatePlayerDisplay();
                 calcSettleList();
                 updateHistoryDisplay();
+                updatePositionStat();
                 alert('已清空所有记录！');
-            }
-        }
-        function clearHistory() {
-            if (confirm('确定要清空所有对局历史记录吗？总收支不会改变')) {
-                historyRecords = [];
-                localStorage.setItem('mahjongHistory', JSON.stringify(historyRecords));
-                updateHistoryDisplay();
-                alert('已清空历史记录！');
             }
         }
     </script>
