@@ -3,404 +3,497 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>上海麻将记账工具</title>
+    <title>沪上雀神争霸</title>
     <style>
-        /* 全局样式 - 修复滚动问题 */
+        /* 风格3·沉稳墨绿+紧凑布局版完整样式 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "微软雅黑", sans-serif;
+            font-family: "微软雅黑", "思源黑体", sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
         body {
-            background-color: #f5f5f5;
-            padding: 15px;
+            background-color: #FFFFFF;
+            padding: 10px 8px; /* 核心：缩小页面整体内边距（原20px 15px） */
             min-height: 100vh;
-            overflow-x: hidden; /* 修复弹窗滚动冲突 */
+            overflow-x: hidden;
         }
         .container {
-            max-width: 600px;
+            max-width: 100%; /* 核心：取消最大宽度限制，适配全屏 */
             margin: 0 auto;
         }
-        /* 标题和计时样式 */
+        /* 标题改为沉稳墨绿色 */
         h1 {
             text-align: center;
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 22px;
+            color: #0c3122;
+            margin-bottom: 10px; /* 缩小标题下间距（原15px） */
+            font-size: 22px; /* 标题稍小（原24px） */
+            font-weight: 700;
+            letter-spacing: 1px;
         }
         .timer-section {
             text-align: center;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 10px; /* 缩小计时模块间距（原25px） */
+            padding: 12px 10px; /* 缩小计时模块内边距（原20px 15px） */
+            background: #F5F5F5;
+            border-radius: 12px;
+            box-shadow: none;
         }
         .timer-info {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 8px;
+            font-size: 14px; /* 计时文字稍小（原15px） */
+            color: #666666;
+            margin-bottom: 8px; /* 缩小间距（原10px） */
         }
         .timer-display {
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 8px;
+            font-size: 16px; /* 计时数字稍小（原18px） */
+            font-weight: 700;
+            color: #333333;
+            margin-bottom: 8px; /* 缩小间距（原12px） */
         }
+        /* 计时按钮改为沉稳墨绿色 */
         .timer-btn {
             width: auto;
-            padding: 0 25px;
-            height: 45px;
-            line-height: 45px;
+            padding: 0 20px; /* 缩小按钮内边距（原30px） */
+            height: 42px; /* 缩小按钮高度（原50px） */
+            line-height: 42px;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: 12px;
+            font-size: 16px; /* 按钮文字稍小（原17px） */
             color: white;
-            background-color: #07c160;
+            background-color: #0c3122;
             cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
         }
+        .timer-btn:hover {
+            opacity: 0.9;
+        }
+        /* 结束计时按钮改为暗玫红（清空按钮同色） */
         .timer-btn.stop {
-            background-color: #f53f3f;
+            background-color: #b23416;
         }
-        /* 模块样式 */
         .module {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background: #F5F5F5;
+            border-radius: 12px;
+            padding: 12px 10px; /* 核心：缩小模块内边距（原25px 20px） */
+            margin-bottom: 8px; /* 核心：缩小模块间距（原20px） */
+            box-shadow: none;
         }
+        /* 模块标题改为沉稳墨绿色 */
         .module-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #eee;
+            font-size: 18px; /* 模块标题稍小（原20px） */
+            font-weight: 700;
+            color: #0c3122;
+            margin-bottom: 8px; /* 核心：缩小标题下间距（原20px） */
+            padding-bottom: 6px; /* 缩小标题下边框间距（原10px） */
+            border-bottom: 2px solid #E5E5E5;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            letter-spacing: 0.5px;
         }
         .module-title small {
-            font-size: 13px;
+            font-size: 13px; /* 稍小（原14px） */
             font-weight: normal;
-            color: #999;
+            color: #999999;
             cursor: pointer;
         }
-        /* 玩家&方位设置 */
         .player-position-item {
             display: flex;
             align-items: center;
-            margin: 12px 0;
-            gap: 10px;
+            margin: 6px 0; /* 核心：缩小玩家行间距（原15px） */
+            gap: 6px; /* 核心：缩小玩家项间距（原12px） */
         }
         .player-input {
-            width: 40%;
-            height: 45px;
-            line-height: 45px;
-            border: 1px solid #eee;
-            padding: 0 12px;
-            border-radius: 8px;
-            font-size: 16px;
+            width: 35%; /* 核心：缩小输入框宽度（原40%） */
+            height: 40px; /* 核心：缩小输入框高度（原50px） */
+            line-height: 40px;
+            border: 2px solid #E5E5E5;
+            padding: 0 8px; /* 缩小输入框内边距（原15px） */
+            border-radius: 12px;
+            font-size: 16px; /* 输入框字体稍小（原17px） */
+            background: #FFFFFF;
+            transition: border 0.2s ease;
+        }
+        /* 输入框聚焦边框改为沉稳墨绿色 */
+        .player-input:focus {
+            outline: none;
+            border-color: #0c3122;
         }
         .position-select {
-            width: 30%;
-            height: 45px;
-            line-height: 45px;
-            border: 1px solid #eee;
-            padding: 0 10px;
-            border-radius: 8px;
-            font-size: 16px;
-            background-color: white;
+            width: 25%; /* 核心：缩小下拉框宽度（原30%） */
+            height: 40px; /* 核心：缩小下拉框高度（原50px） */
+            line-height: 40px;
+            border: 2px solid #E5E5E5;
+            padding: 0 8px; /* 缩小下拉框内边距（原12px） */
+            border-radius: 12px;
+            font-size: 16px; /* 下拉框字体稍小（原17px） */
+            background-color: #FFFFFF;
+            transition: border 0.2s ease;
+        }
+        /* 下拉框聚焦边框改为沉稳墨绿色 */
+        .position-select:focus {
+            outline: none;
+            border-color: #0c3122;
         }
         .player-total {
-            font-size: 16px;
-            color: #666;
-            min-width: 80px;
+            font-size: 16px; /* 金额文字稍小（原18px） */
+            font-weight: 700;
+            color: #333333;
+            min-width: 70px; /* 缩小金额显示宽度（原90px） */
             text-align: right;
         }
-        /* 通用按钮样式 - 自摸/出冲按钮配色区分 */
         button {
             width: 100%;
-            height: 50px;
-            line-height: 50px;
+            height: 45px; /* 核心：缩小按钮高度（原55px） */
+            line-height: 45px;
             border: none;
-            border-radius: 8px;
-            font-size: 17px;
+            border-radius: 12px;
+            font-size: 16px; /* 按钮文字稍小（原18px） */
+            font-weight: 600;
             color: white;
-            margin: 10px 0;
+            margin: 6px 0; /* 核心：缩小按钮间距（原12px） */
             cursor: pointer;
+            transition: all 0.2s ease;
         }
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        /* 自摸按钮改为沉稳墨绿色 */
         .btn-normal {
-            background-color: #07c160; /* 自摸绿色 */
+            background-color: #0c3122;
         }
+        /* 出冲按钮保留浅粉（保持清爽） */
         .btn-chuchong {
-            background-color: #ffc2c2; /* 出冲浅粉色 */
-            color: #333; /* 浅粉色配深色文字更清晰 */
+            background-color: #e6cdcb;
+            color: #333333;
         }
+        /* 清空所有记录按钮改为暗玫红 */
         .btn-warn {
-            background-color: #f53f3f;
+            background-color: #9b2e13;
         }
+        /* 次要按钮保留浅灰 */
         .btn-secondary {
-            background-color: #666;
+            background-color: #999999;
         }
         .btn-small {
             width: auto;
-            height: 40px;
-            line-height: 40px;
-            padding: 0 12px;
-            font-size: 15px;
-            border-radius: 6px;
+            height: 38px; /* 缩小小按钮高度（原45px） */
+            line-height: 38px;
+            padding: 0 12px; /* 缩小小按钮内边距（原15px） */
+            font-size: 14px; /* 小按钮文字稍小（原16px） */
+            border-radius: 12px;
         }
+        /* 按钮选中态改为深墨绿色 */
         .btn-active {
-            background-color: #059850 !important;
+            background-color: #145639 !important;
         }
-        .btn-three { /* 三口按钮专属样式 */
-            background-color: #ff9500;
+        /* 三口按钮保留橘橙（作为点缀） */
+        .btn-three {
+            background-color: #e06814;
             margin-left: 5px;
         }
-        .btn-three.active { /* 三口选中样式 */
-            background-color: #e68900 !important;
+        .btn-three.active {
+            background-color: #d34f0b !important;
         }
-        /* 自定义金额模块 */
         .custom-amount-item {
             display: flex;
             align-items: center;
-            margin: 15px 0;
-            gap: 10px;
+            margin: 6px 0; /* 核心：缩小自定义金额行间距（原18px） */
+            gap: 6px; /* 缩小间距（原12px） */
         }
         .custom-name {
-            width: 35%;
-            font-size: 16px;
-            font-weight: 500;
+            width: 30%; /* 缩小名称宽度（原35%） */
+            font-size: 16px; /* 稍小（原17px） */
+            font-weight: 600;
         }
         .amount-btn-group {
             display: flex;
-            gap: 8px;
+            gap: 6px; /* 缩小按钮组间距（原10px） */
         }
+        /* 赢按钮改为沉稳墨绿色 */
         .win-btn, .lose-btn {
-            width: 50px;
-            height: 40px;
-            line-height: 40px;
+            width: 50px; /* 缩小赢/输按钮宽度（原60px） */
+            height: 38px; /* 缩小赢/输按钮高度（原45px） */
+            line-height: 38px;
             border: none;
-            border-radius: 6px;
-            font-size: 15px;
+            border-radius: 12px;
+            font-size: 14px; /* 稍小（原16px） */
+            font-weight: 600;
             color: white;
         }
         .win-btn {
-            background-color: #07c160;
+            background-color: #1F7A54;
         }
+        /* 输按钮改为暗酒红（更沉稳） */
         .lose-btn {
-            background-color: #f53f3f;
+            background-color: #B92C2C;
         }
         .custom-amount-input {
             flex: 1;
-            height: 40px;
-            line-height: 40px;
-            border: 1px solid #eee;
-            padding: 0 10px;
-            border-radius: 6px;
-            font-size: 16px;
+            height: 38px; /* 缩小自定义金额输入框高度（原45px） */
+            line-height: 38px;
+            border: 2px solid #E5E5E5;
+            padding: 0 8px; /* 缩小内边距（原12px） */
+            border-radius: 12px;
+            font-size: 16px; /* 稍小（原17px） */
             text-align: center;
+            transition: border 0.2s ease;
         }
-        /* 赢法备注下拉框样式 */
+        /* 自定义金额输入框聚焦边框改为沉稳墨绿色 */
+        .custom-amount-input:focus {
+            outline: none;
+            border-color: #1F7A54;
+        }
         .remark-select {
             width: 100%;
-            height: 45px;
-            line-height: 45px;
-            border: 1px solid #eee;
-            padding: 0 12px;
-            border-radius: 8px;
-            font-size: 16px;
+            height: 40px; /* 缩小下拉框高度（原50px） */
+            line-height: 40px;
+            border: 2px solid #E5E5E5;
+            padding: 0 8px; /* 缩小内边距（原15px） */
+            border-radius: 12px;
+            font-size: 16px; /* 稍小（原17px） */
             background-color: white;
-            margin: 10px 0;
+            transition: border 0.2s ease;
+            margin-bottom: 6px; /* 缩小下间距 */
         }
-        /* 出冲快捷记录弹窗样式 - 核心规则修正 */
+        /* 赢法备注下拉框聚焦边框改为沉稳墨绿色 */
+        .remark-select:focus {
+            outline: none;
+            border-color: #1F7A54;
+        }
         .chuchong-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.2);
             display: flex;
             justify-content: center;
             align-items: flex-start;
             z-index: 999;
-            padding: 20px;
+            padding: 8px; /* 缩小弹窗外层间距（原20px） */
             overflow-y: auto;
         }
         .chuchong-content {
             background: white;
-            padding: 25px;
-            border-radius: 10px;
+            padding: 15px 12px; /* 核心：缩小弹窗内边距（原30px 25px） */
+            border-radius: 12px;
+            border: 2px solid #c75c12;
             width: 100%;
-            max-width: 400px;
-            margin-top: 50px;
+            max-width: 380px; /* 缩小弹窗最大宽度（原400px） */
+            margin-top: 10px; /* 缩小弹窗顶部间距（原60px） */
         }
+        /* 出冲弹窗标题改为沉稳墨绿色 */
         .chuchong-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 20px;
+            font-size: 18px; /* 弹窗标题稍小（原20px） */
+            font-weight: 700;
+            color: #0c3122;
+            margin-bottom: 8px; /* 缩小标题下间距（原25px） */
             text-align: center;
         }
         .chuchong-select-item {
-            margin: 12px 0;
+            margin: 6px 0; /* 缩小下拉项间距（原15px） */
         }
         .chuchong-label {
-            font-size: 16px;
-            margin-bottom: 8px;
+            font-size: 16px; /* 稍小（原17px） */
+            font-weight: 600;
+            margin-bottom: 4px; /* 缩小标签下间距（原10px） */
             display: block;
+            color: #333333;
         }
         .chuchong-select {
             width: 100%;
-            height: 45px;
-            line-height: 45px;
-            border: 1px solid #eee;
-            padding: 0 12px;
-            border-radius: 8px;
-            font-size: 16px;
+            height: 40px; /* 缩小下拉框高度（原50px） */
+            line-height: 40px;
+            border: 2px solid #E5E5E5;
+            padding: 0 8px; /* 缩小内边距（原15px） */
+            border-radius: 12px;
+            font-size: 16px; /* 稍小（原17px） */
             background-color: white;
+            transition: border 0.2s ease;
+        }
+        /* 出冲弹窗下拉框聚焦边框改为沉稳墨绿色 */
+        .chuchong-select:focus {
+            outline: none;
+            border-color: #0c3122;
         }
         .chuchong-amount-input {
             width: 100%;
-            height: 45px;
-            line-height: 45px;
-            border: 1px solid #eee;
-            padding: 0 12px;
-            border-radius: 8px;
-            font-size: 18px;
+            height: 40px; /* 缩小金额输入框高度（原50px） */
+            line-height: 40px;
+            border: 2px solid #E5E5E5;
+            padding: 0 8px; /* 缩小内边距（原15px） */
+            border-radius: 12px;
+            font-size: 17px; /* 稍小（原19px） */
+            font-weight: 700;
             text-align: center;
-            margin: 10px 0;
+            margin: 6px 0; /* 缩小间距（原12px） */
             inputmode: numeric;
             pattern: "[0-9]*";
+            transition: border 0.2s ease;
         }
-        /* 自摸弹窗样式 */
+        /* 出冲弹窗金额输入框聚焦边框改为沉稳墨绿色 */
+        .chuchong-amount-input:focus {
+            outline: none;
+            border-color: #0c3122;
+        }
         .zim-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.2);
             display: flex;
             justify-content: center;
             align-items: flex-start;
             z-index: 999;
-            padding: 20px;
+            padding: 8px; /* 缩小弹窗外层间距（原20px） */
             overflow-y: auto;
         }
         .zim-content {
             background: white;
-            padding: 25px;
-            border-radius: 10px;
+            padding: 15px 12px; /* 核心：缩小弹窗内边距（原30px 25px） */
+            border-radius: 12px;
+            border: 2px solid #1F7A54;
             width: 100%;
-            max-width: 400px;
-            margin-top: 50px;
+            max-width: 380px; /* 缩小弹窗最大宽度（原400px） */
+            margin-top: 10px; /* 缩小弹窗顶部间距（原60px） */
         }
+        /* 自摸弹窗标题改为沉稳墨绿色 */
         .zim-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 20px;
+            font-size: 18px; /* 弹窗标题稍小（原20px） */
+            font-weight: 700;
+            color: #0c3122;
+            margin-bottom: 8px; /* 缩小标题下间距（原25px） */
             text-align: center;
         }
         .zim-tip {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: #f8f8f8;
-            border-radius: 6px;
+            font-size: 14px; /* 提示文字稍小（原15px） */
+            color: #666666;
+            margin-bottom: 6px; /* 缩小间距（原20px） */
+            padding: 8px; /* 缩小内边距（原12px） */
+            background-color: #F5F5F5;
+            border-radius: 12px;
             text-align: center;
+            line-height: 1.4; /* 紧凑行高 */
         }
         .zim-player-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 15px;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            margin-bottom: 12px;
+            padding: 10px 8px; /* 核心：缩小选项内边距（原18px 15px） */
+            border: 2px solid #E5E5E5;
+            border-radius: 12px;
+            margin-bottom: 6px; /* 缩小选项间距（原15px） */
             cursor: pointer;
-            font-size: 16px;
+            font-size: 16px; /* 稍小（原17px） */
+            transition: all 0.2s ease;
         }
+        /* 自摸玩家选项hover边框改为沉稳墨绿色 */
+        .zim-player-item:hover {
+            border-color: #0c3122;
+        }
+        /* 自摸玩家选中态改为沉稳墨绿色 */
         .zim-player-item.active {
-            background-color: #07c160;
+            background-color: #0c3122;
             color: white;
-            border-color: #07c160;
+            border-color: #0c3122;
         }
         .zim-amount-input {
             width: 100%;
-            height: 45px;
-            line-height: 45px;
-            border: 1px solid #eee;
-            padding: 0 12px;
-            border-radius: 8px;
-            margin: 15px 0;
+            height: 40px; /* 缩小金额输入框高度（原50px） */
+            line-height: 40px;
+            border: 2px solid #E5E5E5;
+            padding: 0 8px; /* 缩小内边距（原15px） */
+            border-radius: 12px;
+            margin: 6px 0; /* 缩小间距（原20px） */
             text-align: center;
-            font-size: 18px;
+            font-size: 17px; /* 稍小（原19px） */
+            font-weight: 700;
             inputmode: numeric;
             pattern: "[0-9]*";
+            transition: border 0.2s ease;
+        }
+        /* 自摸弹窗金额输入框聚焦边框改为沉稳墨绿色 */
+        .zim-amount-input:focus {
+            outline: none;
+            border-color: #0c3122;
         }
         .zim-player-name {
-            font-size: 16px;
-            font-weight: 500;
+            font-size: 16px; /* 稍小（原17px） */
+            font-weight: 600;
         }
-        /* 历史记录表格样式 */
         .history-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
-            margin-top: 10px;
+            font-size: 14px; /* 历史记录字体稍小（原15px） */
+            margin-top: 8px; /* 缩小上间距（原15px） */
+            border-radius: 12px;
+            overflow: hidden;
         }
         .history-table th, .history-table td {
-            border: 1px solid #eee;
-            padding: 10px 5px;
+            border: 1px solid #E5E5E5;
+            padding: 6px 4px; /* 缩小单元格内边距（原12px 8px） */
             text-align: center;
         }
+        /* 历史记录表头改为沉稳墨绿色 */
         .history-table th {
-            background-color: #f8f8f8;
-            font-weight: 500;
-            color: #333;
-            font-size: 14px;
+            background-color: #0c3122;
+            font-weight: 700;
+            color: white;
+            font-size: 14px; /* 稍小（原15px） */
         }
+        .history-table tr:nth-child(even) {
+            background-color: #F9F9F9;
+        }
+        /* 历史记录赢额改为沉稳墨绿色 */
         .history-table .win-num {
-            color: #07c160;
-            font-weight: 500;
+            color: #0c3122;
+            font-weight: 700;
+            font-size: 15px; /* 稍小（原16px） */
         }
+        /* 历史记录输额改为暗酒红 */
         .history-table .lose-num {
-            color: #f53f3f;
-            font-weight: 500;
+            color: #B92C2C;
+            font-weight: 700;
+            font-size: 15px; /* 稍小（原16px） */
         }
         .history-table .zero-num {
-            color: #999;
+            color: #999999;
+            font-size: 15px; /* 稍小（原16px） */
         }
         .history-empty {
             text-align: center;
-            color: #999;
-            padding: 30px 0;
-            font-size: 16px;
+            color: #999999;
+            padding: 20px 0; /* 缩小内边距（原40px） */
+            font-size: 16px; /* 稍小（原17px） */
         }
-        /* 方位统计模块样式 */
         .tab-container {
             display: flex;
-            margin-bottom: 15px;
+            margin-bottom: 8px; /* 缩小Tab间距（原20px） */
+            border-radius: 12px;
+            overflow: hidden;
         }
         .tab-btn {
             flex: 1;
-            height: 45px;
-            line-height: 45px;
+            height: 40px; /* 缩小Tab按钮高度（原50px） */
+            line-height: 40px;
             border: none;
-            background-color: #eee;
-            color: #666;
-            font-size: 16px;
+            background-color: #E5E5E5;
+            color: #666666;
+            font-size: 16px; /* 稍小（原17px） */
+            font-weight: 600;
             border-radius: 0;
             margin: 0;
         }
+        /* Tab选中态改为沉稳墨绿色 */
         .tab-btn.active {
-            background-color: #07c160;
+            background-color: #0c3122;
             color: white;
         }
         .tab-content {
@@ -410,48 +503,51 @@
             display: block;
         }
         .position-stat-item {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-            font-size: 16px;
+            padding: 8px 6px; /* 缩小统计项内边距（原15px 12px） */
+            border-bottom: 1px solid #E5E5E5;
+            font-size: 16px; /* 稍小（原17px） */
             display: flex;
             justify-content: space-between;
         }
-        /* 结算清单样式 */
         .settle-item {
-            font-size: 16px;
-            line-height: 45px;
-            border-bottom: 1px solid #eee;
-            color: #333;
+            font-size: 16px; /* 稍小（原18px） */
+            font-weight: 600;
+            line-height: 40px; /* 缩小行高（原50px） */
+            border-bottom: 1px solid #E5E5E5;
+            color: #333333;
         }
         .empty-tip {
             text-align: center;
-            color: #999;
-            padding: 20px 0;
-            font-size: 16px;
+            color: #999999;
+            padding: 15px 0; /* 缩小内边距（原30px） */
+            font-size: 16px; /* 稍小（原17px） */
         }
-        /* 三口设置通用样式 - 替换原双倍样式 */
         .three-tip {
-            font-size: 14px;
-            color: #666;
-            margin: 15px 0 8px 0;
+            font-size: 15px; /* 稍小（原16px） */
+            color: #333333;
+            margin: 6px 0 4px 0; /* 缩小间距（原20px 0 12px） */
             display: block;
-            font-weight: 500;
+            font-weight: 600;
         }
         .three-player-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 15px;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            font-size: 16px;
+            padding: 8px 6px; /* 核心：缩小三口选项内边距（原15px 18px） */
+            border: 2px solid #E5E5E5;
+            border-radius: 12px;
+            margin-bottom: 4px; /* 缩小间距（原12px） */
+            font-size: 16px; /* 稍小（原17px） */
+            transition: all 0.2s ease;
+        }
+        .three-player-item:hover {
+            border-color: #F97316;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>上海麻将记账工具</h1>
+        <h1>沪上雀神争霸</h1>
         
         <!-- 计时模块 -->
         <div class="timer-section">
@@ -462,7 +558,7 @@
 
         <!-- 玩家&方位设置模块 -->
         <div class="module">
-            <div class="module-title">🔹 玩家&方位设置</div>
+            <div class="module-title">🀄 玩家&方位设置</div>
             <div class="player-position-item">
                 <input type="text" class="player-input" id="player1" value="A" placeholder="玩家1名称">
                 <select class="position-select" id="position1">
@@ -507,7 +603,7 @@
 
         <!-- 快捷记录模块 - 按钮样式区分 -->
         <div class="module">
-            <div class="module-title">🔹 快捷记录</div>
+            <div class="module-title">🀄 快捷记录</div>
             <button class="btn-normal" onclick="showZimModal()">自摸</button>
             <button class="btn-chuchong" onclick="showChuchongModal()">出冲</button>
             <button class="btn-secondary" onclick="showCustomInput()">自定义本局金额</button>
@@ -516,7 +612,7 @@
 
         <!-- 自定义金额模块 - 三口设置 -->
         <div class="module" id="customModule" style="display: none;">
-            <div class="module-title">🔹 自定义本局金额</div>
+            <div class="module-title">🀄 自定义本局金额</div>
             <!-- 赢法备注下拉框 -->
             <select class="remark-select" id="roundRemark">
                 <option value="">—— 选择本局赢法（可选）——</option>
@@ -760,7 +856,7 @@
 
         <!-- 结算清单模块 -->
         <div class="module">
-            <div class="module-title">🔹 最终结算清单</div>
+            <div class="module-title">🀄 最终结算清单</div>
             <div id="settleList">
                 <div class="empty-tip">暂无记录，先添加对局结果吧～</div>
             </div>
